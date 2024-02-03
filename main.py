@@ -2,75 +2,141 @@ from pytube import YouTube
 from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import Progressbar
+from tkinter import filedialog
 import os
+
+win_user = os.environ['USERNAME']
+output = f"C:\\Users\\{win_user}\\Videos"
+
+
+def aboutme():
+    about = Tk()
+    about.title("INFO")
+    about.minsize(width=400, height=100)
+    about.maxsize(width=400, height=100)
+    Label(about, text="Youtube Downloader INFO", font=("Arial", 20, "bold")).pack()
+    Label(about, text="Autor: Piotr Zarzycki", font=("Arial", 10, "")).pack()
+    Label(about, text="Wersja: 1.0.0", font=("Arial", 10, "")).pack()
+    about.mainloop()
+
+
+def settings():
+    global output
+
+    def change():
+        global output  # Użyj zmiennej globalnej
+        window_settings.lift()
+        selected_path = filedialog.askdirectory()
+        window_settings.lift()
+
+        if selected_path:
+            output = selected_path  # Zaktualizuj zmienną globalną
+            path_change.set(output)
+            otp.set(output)
+            window.update_idletasks()
+        window.lift()
+        path_change.set(output)
+        otp.set(output)
+        window.update_idletasks()
+        window_settings.lift()
+
+    window_settings = Toplevel()
+    path_change = StringVar()
+    window_settings.iconbitmap("settings.ico")
+
+    path_change.set(output)
+    window_settings.minsize(width=300, height=200)
+    window_settings.maxsize(width=300, height=200)
+    Label(window_settings, text="Ustawienia", font=("Arial", 30)).pack(padx=20, pady=15)
+    window_settings.title("Ustawienia")
+    window_settings.geometry("300x200")
+
+    Label(window_settings,
+          text="Ustawienia lokalizacji pobierania: ",
+          font=("Arial", 10, "bold")).place(x=0, y=80)
+    Label(window_settings, textvariable=path_change, width=20).place(x=0, y=100)
+    Button(window_settings, text="Zmień", command=change).place(x=200, y=100)
 
 
 def download():
-    win_user = os.environ['USERNAME']
     x = 0
     y = 100
     try:
         url = entrybox.get()
         if not url:
-            messagebox.showwarning("Brak adresu URL", "Wprowadź adres URL do filmu przed rozpoczęciem pobierania.")
+            messagebox.showwarning("Brak URL", "Proszę wprowadzić URL do wideo przed pobraniem.")
             return
-
-        yt = YouTube(url)
 
         bar['value'] += 10
         x += 10
         percent.set(str(round((x / y) * 100)) + "%")
-        tasks.set(f"{x}/{y} % downloaded!")
+        tasks.set(f"{x}/{y} % pobrane!")
         window.update_idletasks()
-
-        title.set(str(yt.title))
 
         bar['value'] += 20
         x += 20
         percent.set(str(round((x / y) * 100)) + "%")
-        tasks.set(f"{x}/{y} % downloaded!")
+        tasks.set(f"{x}/{y} % pobrane!")
         window.update_idletasks()
 
-        output = f"C:\\Users\\{win_user}\\Videos"
-
-        # Progress update 1
+        # Aktualizacja postępu 1
         bar['value'] += 20
         x += 20
         percent.set(str(round((x / y) * 100)) + "%")
-        tasks.set(f"{x}/{y} % downloaded!")
+        tasks.set(f"{x}/{y} % pobrane!")
         window.update_idletasks()
 
-        # Progress update 2
+        # Aktualizacja postępu 2
         yt = YouTube(url)
         title.set(str(yt.title))
         bar['value'] += 30
         x += 30
         percent.set(str(round((x / y) * 100)) + "%")
-        tasks.set(f"{x}/{y} % downloaded!")
+        tasks.set(f"{x}/{y} % pobrane!")
         window.update_idletasks()
 
-        # Download video
+        # Pobieranie wideo
         video = yt.streams.get_highest_resolution()
         window.update_idletasks()
         video.download(output)
 
-        # Progress update 3
+        # Aktualizacja postępu 3
         bar['value'] += 20
         x += 20
         percent.set(str(round((x / y) * 100)) + "%")
-        tasks.set(f"{x}/{y} % downloaded!")
+        tasks.set(f"{x}/{y} % pobrane!")
         window.update_idletasks()
+        button_open.place(x=490, y=230)
+        answer = messagebox.askquestion('Pobieranie zakończone!',
+                                        f"Wideo zostało pobrane do katalogu:\n{output}.\nCzy chcesz odtworzyć wideo?")
+        open_path = f"{output}\\{yt.title}.mp4"
+        if answer == 'yes':
+            try:
+                # Otwieranie pliku wideo za pomocą domyślnego odtwarzacza
+                os.startfile(open_path)
 
-        print(f"Video downloaded successfully to {output}")
-        messagebox.showinfo("Pobieranie zakończone!", f"Film został pobrany w katalogu: {output}")
+            except Exception as e:
+                print(f"Błąd podczas otwierania pliku wideo: {e}")
+        else:
+            pass
         bar['value'] = 0
         percent.set("")
         tasks.set("")
     except Exception as e:
-        print(f"Error message: {e}")
+        print(f"Komunikat błędu: {e}")
         bar['value'] = 0
         messagebox.showerror("Błąd podczas pobierania", f"Wystąpił błąd: {e}\nSprawdź URL i spróbuj ponownie.")
 
+
+def open_last():
+    global output
+    g1 = f"{output}\\{title.get()}.mp4"
+    try:
+        # Otwieranie pliku wideo za pomocą domyślnego odtwarzacza
+        os.startfile(g1)
+
+    except Exception as e:
+        messagebox.showerror(f"Błąd", f"Błąd podczas otwierania pliku wideo: {e}")
 
 
 window = Tk()
@@ -79,7 +145,7 @@ window.geometry("600x400")
 window.iconbitmap("icon.ico")
 window.configure(bg="#F0F0F0")
 window.maxsize(width=600, height=320)
-window.minsize(width=450, height=300)
+window.minsize(width=600, height=320)
 
 label = Label(window,
               text="Youtube Downloader",
@@ -95,12 +161,15 @@ bar.pack(pady=10)
 percent = StringVar()
 tasks = StringVar()
 title = StringVar()
-
+otp = StringVar()
+otp.set(output)
 Label(window, textvariable=percent, font=("Arial", 12)).pack()
 Label(window, textvariable=tasks, font=("Arial", 12)).pack()
 
 label_title = Label(window, textvariable=title, font=("Arial", 16, "bold"))
 label_title.pack(pady=10)
+
+Label(window, textvariable=otp, width=70).pack()
 
 frame = Frame(window, bg="#F0F0F0")
 frame.pack()
@@ -108,7 +177,16 @@ frame.pack()
 entrybox = Entry(frame, font=("Arial", 16), width=30)
 entrybox.pack(pady=10)
 
-button = Button(frame, text="Download", command=download, bg="#4CAF50", fg="white", font=("Arial", 14))
-button.pack(pady=10)
+button_open = Button(window, text="Otwórz", command=open_last, bg="#4303af", fg="white", font=("Arial", 14))
 
+button_down = Button(window, text="Pobierz", command=download, bg="#4CAF50", fg="white", font=("Arial", 14))
+button_down.place(x=245, y=270)
+
+Aboutme = Button(window, text="About", command=aboutme, font=("Arial", 14), bg="white")
+Aboutme.place(x=10, y=12)
+
+setting_photo = PhotoImage(file="img/icons8-settings-32.png")
+
+settings_button = Button(window, image=setting_photo, command=settings, bg="white")
+settings_button.place(x=530, y=10)
 window.mainloop()
