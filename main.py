@@ -61,6 +61,8 @@ def settings():
 
 def download():
     global tytul
+    button_down.config(state='disabled')
+    entrybox.config(state='disabled')
     x = 0
     y = 100
     try:
@@ -136,10 +138,16 @@ def download():
         bar['value'] = 0
         percent.set("")
         tasks.set("")
+        button_down.config(state='normal')
+        entrybox.config(state='normal')
     except Exception as e:
         print(f"Komunikat błędu: {e}")
         bar['value'] = 0
+        button_down.config(state='normal')
+        entrybox.config(state='normal')
         messagebox.showerror("Błąd podczas pobierania", f"Wystąpił błąd: {e}\nSprawdź URL i spróbuj ponownie.")
+    button_down.config(state='normal')
+    entrybox.config(state='normal')
 
 
 def open_last():
@@ -155,6 +163,8 @@ def open_last():
 
 
 window = Tk()
+window.bind('<Return>', lambda event: download())
+
 window.title("Youtube Downloader")
 window.geometry("600x400")
 window.iconbitmap("icon.ico")
