@@ -5,8 +5,9 @@ from tkinter.ttk import Progressbar
 from tkinter import filedialog
 import os
 
-win_user = os.environ['USERNAME']
-output = f"C:\\Users\\{win_user}\\Videos"
+win_user = os.environ['USERPROFILE']
+output = f"{win_user}\\Videos"
+print(win_user)
 
 
 def aboutme():
@@ -59,6 +60,7 @@ def settings():
 
 
 def download():
+    global tytul
     x = 0
     y = 100
     try:
@@ -88,7 +90,18 @@ def download():
 
         # Aktualizacja postępu 2
         yt = YouTube(url)
+        tytul = yt.title
         title.set(str(yt.title))
+        zakaz = ['\\', '/', ' ', ':', '*', '?', '!', '"', '<', '>', '|']
+        alfabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+                   'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ']
+        for litera in tytul.lower():
+            if litera not in alfabet:
+                tytul = tytul.replace(litera, '')
+
+        yt.title = tytul
+        print(yt.title)
+        print(tytul)
         bar['value'] += 30
         x += 30
         percent.set(str(round((x / y) * 100)) + "%")
@@ -109,7 +122,8 @@ def download():
         button_open.place(x=490, y=230)
         answer = messagebox.askquestion('Pobieranie zakończone!',
                                         f"Wideo zostało pobrane do katalogu:\n{output}.\nCzy chcesz odtworzyć wideo?")
-        open_path = f"{output}\\{yt.title}.mp4"
+        open_path = f"{output}\\{tytul}.mp4"
+        print(yt.title)
         if answer == 'yes':
             try:
                 # Otwieranie pliku wideo za pomocą domyślnego odtwarzacza
@@ -130,7 +144,8 @@ def download():
 
 def open_last():
     global output
-    g1 = f"{output}\\{title.get()}.mp4"
+    global tytul
+    g1 = f"{output}\\{tytul}.mp4"
     try:
         # Otwieranie pliku wideo za pomocą domyślnego odtwarzacza
         os.startfile(g1)
