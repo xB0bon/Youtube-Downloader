@@ -43,7 +43,7 @@ def settings():
 
     window_settings = Toplevel()
     path_change = StringVar()
-    window_settings.iconbitmap("settings.ico")
+    window_settings.iconbitmap("ico/settings.ico")
 
     path_change.set(output)
     window_settings.minsize(width=300, height=200)
@@ -69,6 +69,8 @@ def download():
         url = entrybox.get()
         if not url:
             messagebox.showwarning("Brak URL", "Proszę wprowadzić URL do wideo przed pobraniem.")
+            button_down.config(state='normal')
+            entrybox.config(state='normal')
             return
 
         bar['value'] += 10
@@ -94,16 +96,14 @@ def download():
         yt = YouTube(url)
         tytul = yt.title
         title.set(str(yt.title))
-        zakaz = ['\\', '/', ' ', ':', '*', '?', '!', '"', '<', '>', '|']
-        alfabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-                   'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ']
+        alfabet = ['a', 'ą', 'ę', 'ć', 'ż', 'ź', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+                   'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ', '1', '2', '3', '4', '5', '6',
+                   '7', '8', '9', '0']
         for litera in tytul.lower():
             if litera not in alfabet:
                 tytul = tytul.replace(litera, '')
 
         yt.title = tytul
-        print(yt.title)
-        print(tytul)
         bar['value'] += 30
         x += 30
         percent.set(str(round((x / y) * 100)) + "%")
@@ -125,7 +125,6 @@ def download():
         answer = messagebox.askquestion('Pobieranie zakończone!',
                                         f"Wideo zostało pobrane do katalogu:\n{output}.\nCzy chcesz odtworzyć wideo?")
         open_path = f"{output}\\{tytul}.mp4"
-        print(yt.title)
         if answer == 'yes':
             try:
                 # Otwieranie pliku wideo za pomocą domyślnego odtwarzacza
@@ -133,8 +132,12 @@ def download():
 
             except Exception as e:
                 print(f"Błąd podczas otwierania pliku wideo: {e}")
+                button_down.config(state='normal')
+                entrybox.config(state='normal')
         else:
             pass
+            button_down.config(state='normal')
+            entrybox.config(state='normal')
         bar['value'] = 0
         percent.set("")
         tasks.set("")
@@ -167,7 +170,7 @@ window.bind('<Return>', lambda event: download())
 
 window.title("Youtube Downloader")
 window.geometry("600x400")
-window.iconbitmap("icon.ico")
+window.iconbitmap("ico/icon.ico")
 window.configure(bg="#F0F0F0")
 window.maxsize(width=600, height=320)
 window.minsize(width=600, height=320)
