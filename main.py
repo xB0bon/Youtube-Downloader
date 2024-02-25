@@ -112,6 +112,7 @@ def download():
 
         # Pobieranie wideo
         video = yt.streams.get_highest_resolution()
+
         window.update_idletasks()
         video.download(output)
 
