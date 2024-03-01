@@ -3,11 +3,16 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import Progressbar
 from tkinter import filedialog
-import os
+from moviepy.editor import *
 
 win_user = os.environ['USERPROFILE']
 output = f"{win_user}\\Videos"
-print(win_user)
+
+
+def normalstate():
+    button_down.config(state='normal')
+    entrybox.config(state='normal')
+    option_menu.config(state='normal')
 
 
 def aboutme():
@@ -60,17 +65,19 @@ def settings():
 
 
 def download():
-    global tytul
+    global tytul, video, format_pliku, mp3plik
     button_down.config(state='disabled')
     entrybox.config(state='disabled')
+    option_menu.config(state='disabled')
+    format_pliku = var.get()
+
     x = 0
     y = 100
     try:
         url = entrybox.get()
         if not url:
             messagebox.showwarning("Brak URL", "Proszę wprowadzić URL do wideo przed pobraniem.")
-            button_down.config(state='normal')
-            entrybox.config(state='normal')
+            normalstate()
             return
 
         bar['value'] += 10
@@ -110,8 +117,10 @@ def download():
         tasks.set(f"{x}/{y} % pobrane!")
         window.update_idletasks()
 
-        # Pobieranie wideo
-        video = yt.streams.get_highest_resolution()
+        if format_pliku == '.mp4':
+            video = yt.streams.get_highest_resolution()
+        if format_pliku == '.mp3':
+            video = yt.streams.get_audio_only()
 
         window.update_idletasks()
         video.download(output)
@@ -123,47 +132,41 @@ def download():
         tasks.set(f"{x}/{y} % pobrane!")
         window.update_idletasks()
         button_open.place(x=490, y=230)
+        if format_pliku != '.mp4':
+            video_clip = AudioFileClip(f"{output}\\{tytul}.mp4")
+            video_clip.write_audiofile(f"{output}\\{tytul}.mp3")
+            os.remove(f"{output}\\{tytul}.mp4")
         answer = messagebox.askquestion('Pobieranie zakończone!',
-                                        f"Wideo zostało pobrane do katalogu:\n{output}.\nCzy chcesz odtworzyć wideo?")
-        open_path = f"{output}\\{tytul}.mp4"
+                                        f"Plik został pobrany do katalogu:\n{output}.\nCzy chcesz odtworzyć plik?")
+        open_path = f"{output}\\{tytul}{format_pliku}"
         if answer == 'yes':
             try:
                 # Otwieranie pliku wideo za pomocą domyślnego odtwarzacza
                 os.startfile(open_path)
 
             except Exception as e:
-                print(f"Błąd podczas otwierania pliku wideo: {e}")
-                button_down.config(state='normal')
-                entrybox.config(state='normal')
+                normalstate()
         else:
             pass
-            button_down.config(state='normal')
-            entrybox.config(state='normal')
+            normalstate()
         bar['value'] = 0
         percent.set("")
         tasks.set("")
-        button_down.config(state='normal')
-        entrybox.config(state='normal')
     except Exception as e:
-        print(f"Komunikat błędu: {e}")
         bar['value'] = 0
-        button_down.config(state='normal')
-        entrybox.config(state='normal')
         messagebox.showerror("Błąd podczas pobierania", f"Wystąpił błąd: {e}\nSprawdź URL i spróbuj ponownie.")
-    button_down.config(state='normal')
-    entrybox.config(state='normal')
+    normalstate()
 
 
 def open_last():
-    global output
-    global tytul
-    g1 = f"{output}\\{tytul}.mp4"
+    global output, format_pliku, tytul
+    g1 = f"{output}\\{tytul}{format_pliku}"
     try:
         # Otwieranie pliku wideo za pomocą domyślnego odtwarzacza
         os.startfile(g1)
 
     except Exception as e:
-        messagebox.showerror(f"Błąd", f"Błąd podczas otwierania pliku wideo: {e}")
+        messagebox.showerror(f"Błąd", f"Błąd podczas otwierania pliku: {e}")
 
 
 window = Tk()
@@ -175,6 +178,15 @@ window.iconbitmap("ico/icon.ico")
 window.configure(bg="#F0F0F0")
 window.maxsize(width=600, height=320)
 window.minsize(width=600, height=320)
+
+Wybor_formatu = ['.mp4', '.mp3']
+
+var = StringVar(window)
+var.set(Wybor_formatu[0])  # Ustaw domyślną opcję
+
+option_menu = OptionMenu(window, var, *Wybor_formatu)
+option_menu.config(bg='#d5efff', width=6, height=1, font=('arial', 10, 'bold'))
+option_menu.place(x=30, y=232)
 
 label = Label(window,
               text="Youtube Downloader",
