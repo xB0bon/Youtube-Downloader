@@ -4,10 +4,14 @@ from tkinter import messagebox
 from tkinter.ttk import Progressbar
 from tkinter import filedialog
 from moviepy.editor import *
+import sys
+
+output = open("output.txt", "wt")
+sys.stdout = output
+sys.stderr = output
 
 win_user = os.environ['USERPROFILE']
 output = f"{win_user}\\Videos"
-
 
 def normalstate():
     button_down.config(state='normal')
@@ -126,8 +130,8 @@ def download():
         video.download(output)
 
         # Aktualizacja postępu 3
-        bar['value'] += 20
-        x += 20
+        bar['value'] += 19
+        x += 19
         percent.set(str(round((x / y) * 100)) + "%")
         tasks.set(f"{x}/{y} % pobrane!")
         window.update_idletasks()
@@ -136,6 +140,11 @@ def download():
             video_clip = AudioFileClip(f"{output}\\{tytul}.mp4")
             video_clip.write_audiofile(f"{output}\\{tytul}.mp3")
             os.remove(f"{output}\\{tytul}.mp4")
+
+        bar['value'] += 1
+        x += 1
+        percent.set(str(round((x / y) * 100)) + "%")
+        tasks.set(f"{x}/{y} % pobrane!")
         answer = messagebox.askquestion('Pobieranie zakończone!',
                                         f"Plik został pobrany do katalogu:\n{output}.\nCzy chcesz odtworzyć plik?")
         open_path = f"{output}\\{tytul}{format_pliku}"
