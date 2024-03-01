@@ -22,7 +22,7 @@ def aboutme():
     about.maxsize(width=400, height=100)
     Label(about, text="Youtube Downloader INFO", font=("Arial", 20, "bold")).pack()
     Label(about, text="Autor: Piotr Zarzycki", font=("Arial", 10, "")).pack()
-    Label(about, text="Wersja: 1.0.0", font=("Arial", 10, "")).pack()
+    Label(about, text="Wersja: 1.2.0", font=("Arial", 10, "")).pack()
     about.mainloop()
 
 
