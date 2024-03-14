@@ -1,3 +1,3 @@
 # Youtube-Downloader
 
-Version ALFA
+Version 1.2.1
